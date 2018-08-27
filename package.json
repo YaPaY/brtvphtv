@@ -1,14 +1,14 @@
 {
   "name": "puhutv",
-  "date": "2018.05.09",
-  "version": "1.0.2",
+  "date": "2018.09.09",
+  "version": "2.0.1",
   "description": "Puhutv for IPTV",
   "author": {
     "name": "FactoryKodi"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/factorykodi/brtvphtv.git"
+    "url": "https://github.com/YaPaY/brtvphtv.git"
   },
   "dependencies": {},
   "config": {
