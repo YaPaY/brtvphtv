@@ -142,7 +142,7 @@
                 var a = new XMLHttpRequest;
                 a.timeout = b, a.onreadystatechange = function() {
                     if (a.readyState == XMLHttpRequest.DONE) {
-                        var n = JSON.parse(a.responseText),
+                        var n = JSON.stringify(a.responseText),
                             s = [];
                         n.data.videos.forEach(function(e, a) {
                             var n = e.url.split("?")[0].split("/");
