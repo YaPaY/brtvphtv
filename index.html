@@ -7,7 +7,6 @@
         html, body {
             height: 100%; margin: 0; overflow: hidden;
             font: normal 1vw "Lucida Sans Unicode", "Bitstream Vera Sans", "Trebuchet Unicode MS", "Lucida Grande", Verdana, Helvetica, sans-serif;
-            background: black;
             position: relative;
         }
         .box {
@@ -89,6 +88,7 @@
                 T = $("#vol_text"),
                 msg = $("#message"),
                 gt = null,
+                pt = null,
                 L = [],
                 q = 1,
                 E = [],
@@ -163,19 +163,27 @@
             }
 
             function playVideo(t) {
-                // T.text(t); O.show();
                 hideLoadingAni();
-                v.InitPlayer();
                 w.hide();
-                v.Play('auto ' + t);
+                if(v) {
+                    v.InitPlayer();
+                    v.Play(t);
+                }
+                pt && clearTimeout(pt);
+                pt = setTimeout(function() {
+                    if(!v || (!v.IsPlaying() && (v.GetPosTime() < 1))) {
+                        v && (v.Stop(), v.DeinitPlayer());
+                        w.show();
+                    }
+                }, 3e4);
             }
 
             function goBack() {
+                hideLoadingAni();
+                w.show();
                 if(v && v.IsPlaying()) {
                     v.Stop();
                     v.DeinitPlayer();
-                    hideLoadingAni();
-                    w.show();
                 } else {
                     try {
                         process(L[L.length - q].param, L[L.length - q].slug);
@@ -196,7 +204,7 @@
 
             function rewind(i) {
                 var pos = v.GetPosTime() + i;
-                if(pos< 0) pos = 0;
+                if(pos < 0) pos = 0;
                 v.SetPosTime(pos);
             }
 
