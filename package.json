@@ -21,8 +21,8 @@
         "1080": "img/"
       },
       "states": {
-        "normal": "img/icons/puhu.png",
-        "active": "img/icons/puhu.focus.png"
+        "normal": "icons/2015.png",
+				"active": "icons/2015.focus.png"
       }
     }
   }
