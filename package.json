@@ -22,7 +22,8 @@
       },
       "states": {
         "normal": "icons/2015.png",
-				"active": "icons/2015.focus.png"
+				"normal": "img/icons/2015.png",
+				"active": "img/icons/2015.focus.png"
       }
     }
   }
