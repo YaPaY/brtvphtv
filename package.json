@@ -1,7 +1,7 @@
 {
   "name": "puhutv",
-  "date": "2018.09.09",
-  "version": "2.0.1",
+  "date": "2018.09.28",
+  "version": "3.0.0",
   "description": "Puhutv for IPTV",
   "author": {
     "name": "FactoryKodi"
@@ -21,8 +21,8 @@
         "1080": "img/"
       },
       "states": {
-        "normal": "icons/puhu.png",
-        "active": "icons/puhu.focus.png"
+        "normal": "img/icons/puhu.png",
+        "active": "img/icons/puhu.focus.png"
       }
     }
   }
