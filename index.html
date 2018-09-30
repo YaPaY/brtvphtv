@@ -67,7 +67,7 @@
             padding: 1.0vw 8.0vw;
         }
     </style>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.0.0.js"></script>
+    <script type="text/javascript" src="https://www.pusulaswiss.ch/1/js/jquery-3.0.0.js"></script>
     <script type="text/javascript">
         $(function() {
             String.prototype.startsWith = function(t) {
@@ -84,6 +84,7 @@
                 imgThumb = $("#img_thumb"),
                 plotInfo = $("#plot"),
                 loadingAni = $("#loading"),
+                isSuspended = false,
                 O = $("#volume"),
                 T = $("#vol_text"),
                 msg = $("#message"),
@@ -531,7 +532,7 @@
             }
 
             $(document.body).keydown(function(t) {
-                switch (t.keyCode || t.which) {
+                switch(t.keyCode || t.which) {
                     case 8:
                     case 83:
                         goBack();
@@ -579,6 +580,22 @@
                         } else {
                             window.location.href = "http://buritv.ddns.net/stalker_portal/c";
                         }
+                        break;
+                    case 117:
+                        if(!isSuspended) {
+                            isSuspended = true;
+                            if(v.IsPlaying()) v.Pause();
+                            v.StandBy(true);
+                        } else {
+                            isSuspended = false;
+                            v.StandBy(false);
+                            v.Continue();
+                        }
+                        break;
+                    default:
+                        T.text('Key code: ' + (t.keyCode||t.which));
+                        O.show();
+                        break;
                 }
             });
             process();

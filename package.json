@@ -1,14 +1,14 @@
 {
-  "name": "puhutv",
+  "name": "puhutv-stb",
   "date": "2018.09.28",
-  "version": "3.0.0",
-  "description": "Puhutv for IPTV",
+  "version": "1.0.0",
+  "description": "PuhuTV for STB",
   "author": {
-    "name": "FactoryKodi"
+    "name": "pusulaswiss.ch"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/YaPaY/brtvphtv.git"
+    "url": "https://github.com/your/repo.git"
   },
   "dependencies": {},
   "config": {
@@ -21,9 +21,8 @@
         "1080": "img/"
       },
       "states": {
-        "normal": "icons/2015.png",
-				"normal": "img/icons/2015.png",
-				"active": "img/icons/2015.focus.png"
+        "normal": "icon.png",
+        "active": "icon.png"
       }
     }
   }
