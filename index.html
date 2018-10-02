@@ -66,13 +66,64 @@
             padding: 16px 72px;
             padding: 1.0vw 8.0vw;
         }
+
+        #progress-wrapper {
+            width: 100%;
+            margin: auto;
+            position: fixed;
+            bottom: 10%;
+            left: 0;
+            right: 0;
+            color: white;
+            font-size: 2em;
+            display: none;
+        }
+        #progress-outer {
+            -webkit-border-radius: 2em;
+            position: absolute;
+            overflow: hidden;
+            left: 0;
+            right: 0;
+            width: 70%;
+            margin: auto;
+            background-color: #444;
+        }
+        #progress {
+            margin: 0;
+            left: 0;
+            width: 0%;
+            background-color: white;
+        }
+        #progress-wrapper, #progress-wrapper div {
+            position: absolute;
+            height: 1em;
+            line-height: 1em;
+        }
+        #time-current, #time-total {
+            width: 7em;
+            font-weight: bold;
+            text-align: center;
+            -webkit-text-shadow: 0 0 2px black;
+            text-shadow: 0 0 2px black;
+        }
+        #time-current {
+            left: 0;
+        }
+        #time-total {
+            right: 0;
+        }
     </style>
+
     <script type="text/javascript" src="https://www.pusulaswiss.ch/1/js/jquery-3.0.0.js"></script>
     <script type="text/javascript">
         $(function() {
             String.prototype.startsWith = function(t) {
-                return 0 == this.indexOf(t)
+                return 0 == this.indexOf(t);
             };
+
+            Number.prototype.toHMS = function() {
+                return new Date(this * 1000).toISOString().substr(11, 8);
+            }
 
             const XHR_TIMEOUT = 12e4;
             const H = 10;
@@ -88,8 +139,14 @@
                 O = $("#volume"),
                 T = $("#vol_text"),
                 msg = $("#message"),
-                gt = null,
-                pt = null,
+                timeCurrent = $('#time-current'),
+                timeTotal = $('#time-total'),
+                progressBar = $('#progress'),
+                progressBox = $('#progress-wrapper'),
+                progressInterval,
+                progressTimeout,
+                gt,
+                pt,
                 L = [],
                 q = 1,
                 E = [],
@@ -165,6 +222,7 @@
 
             function playVideo(t) {
                 hideLoadingAni();
+                hideProgress();
                 w.hide();
                 if(v) {
                     v.InitPlayer();
@@ -181,6 +239,7 @@
 
             function goBack() {
                 hideLoadingAni();
+                hideProgress();
                 w.show();
                 if(v && v.IsPlaying()) {
                     v.Stop();
@@ -196,14 +255,45 @@
             }
 
             function updateVolume(t) {
+                progressInterval && clearInterval(progressInterval);
+                progressTimeout && clearTimeout(progressTimeout);
                 var e = v.GetVolume(),
                     a = e + t;
-                a >= 100 ? a = 100 : a <= 0 && (a = 0), v.SetVolume(a), v.IsPlaying() && (T.text("Vol: " + a.toString()), O.show()), setTimeout(function() {
-                    O.hide()
-                }, 2e3)
+                if(a >= 100) a = 100;
+                else if(a <= 0) a = 0;
+                v.SetVolume(a);
+                timeCurrent.text('SES');
+                timeTotal.text(a);
+                progressBar.css('width', a+'%');
+                progressTimeout = setTimeout(hideProgress, 6e3);
+                progressBox.show();
+            }
+
+            function updateProgress() {
+                var tc = v.GetPosTime(),
+                    tt = v.GetMediaLen();
+                timeCurrent.text(tc.toHMS());
+                timeTotal.text(tt.toHMS());
+                progressBar.css('width', (100/tt*tc)+'%');
+            }
+
+            function showProgress() {
+                progressInterval && clearInterval(progressInterval);
+                progressTimeout && clearTimeout(progressTimeout);
+                updateProgress();
+                progressInterval = setInterval(updateProgress, 1e3);
+                progressTimeout = setTimeout(hideProgress, 6e3);
+                progressBox.show();
+            }
+
+            function hideProgress() {
+                progressInterval && clearInterval(progressInterval);
+                progressTimeout && clearTimeout(progressTimeout);
+                progressBox.hide();
             }
 
             function rewind(i) {
+                showProgress();
                 var pos = v.GetPosTime() + i;
                 if(pos < 0) pos = 0;
                 v.SetPosTime(pos);
@@ -531,16 +621,37 @@
                 }
             }
 
+            function toggleSuspendState() {
+                if(!isSuspended) {
+                    isSuspended = true;
+                    if(v.IsPlaying()) v.Pause();
+                    v.StandBy(true);
+                } else {
+                    isSuspended = false;
+                    v.StandBy(false);
+                    v.Continue();
+                }
+            }
+
             $(document.body).keydown(function(t) {
+
+                T.text('keyCode=' + t.keyCode + ' which=' + t.which + ' alt=' + t.altKey + ' ctrl=' + t.ctrlKey + ' shift=' + t.shiftKey + ' key=' + t.key);
+                O.show();
+
                 switch(t.keyCode || t.which) {
                     case 8:
                     case 83:
                         goBack();
                         break;
                     case 85:
-                        v.Continue();
+                        if(t.altKey) {
+                            toggleSuspendState();
+                        } else {
+                            v.Continue();
+                        }
                         break;
                     case 82:
+                        showProgress();
                         v.IsPlaying() ? v.Pause() : v.Continue();
                         break;
                     case 13:
@@ -574,27 +685,13 @@
                         rewind(-60);
                         break;
                     case 27:
+                        hideProgress();
                         v.Stop();
                         if(window.parent !== window) {
                             window.parent.postMessage("hide", "*");
                         } else {
                             window.location.href = "http://buritv.ddns.net/stalker_portal/c";
                         }
-                        break;
-                    case 117:
-                        if(!isSuspended) {
-                            isSuspended = true;
-                            if(v.IsPlaying()) v.Pause();
-                            v.StandBy(true);
-                        } else {
-                            isSuspended = false;
-                            v.StandBy(false);
-                            v.Continue();
-                        }
-                        break;
-                    default:
-                        T.text('Key code: ' + (t.keyCode||t.which));
-                        O.show();
                         break;
                 }
             });
@@ -610,6 +707,13 @@
     <div id="volume" style="margin:0.7vw;display:none;background:black;">
         <label id="vol_text" style="font: bold 2vw Arial;color:white;"></label>
     </div>
+
+    <div id="progress-wrapper">
+        <div id="time-current">00:00:00</div>
+        <div id="progress-outer"><div id="progress"></div></div>
+        <div id="time-total">00:00:00</div>
+    </div>
+
     <div class="box">
         <div class="row left-box">
             <div style="padding:3%;padding-left:7%">
