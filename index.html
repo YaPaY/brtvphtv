@@ -146,8 +146,7 @@
                 timeTotal = $('#time-total'),
                 progressBar = $('#progress'),
                 progressBox = $('#progress-wrapper'),
-                timeShift = 0,
-                currentPosition = null,
+                newPosition = null,
                 positionTimeout,
                 progressInterval,
                 progressTimeout,
@@ -276,10 +275,19 @@
             }
 
             function updateProgress() {
-                var tc = ((null == currentPosition) ? v.GetPosTime() : currentPosition) + timeShift,
+                var tc = v.GetPosTime(),
                     tt = v.GetMediaLen();
                 if(tc > tt) tc = tt;
                 else if(tc < 0) tc = 0;
+                if(null !== newPosition) {
+                    if(newPosition > tt) newPosition = tt;
+                    else if(newPosition < 0) newPosition = 0;
+                    if(Math.abs(newPosition - tc) < 60) {
+                        newPosition = null;
+                    } else {
+                        tc = newPosition;
+                    }
+                }
                 timeCurrent.text(tc.toHMS());
                 timeTotal.text(tt.toHMS());
                 progressBar.css('width', (100/tt*tc)+'%');
@@ -302,19 +310,17 @@
 
             function rewind(i) {
                 positionTimeout && clearTimeout(positionTimeout);
-                if(null === currentPosition) {
-                    currentPosition = v.GetPosTime();
-                    timeShift = 0;
+                if(null === newPosition) {
+                    newPosition = v.GetPosTime();
                 }
-                timeShift += i;
+                newPosition += i;
                 positionTimeout = setTimeout(function() {
-                    var pos = currentPosition + timeShift,
+                    var pos = newPosition,
                         maxpos = v.GetMediaLen();
                     if(pos < 0) pos = 0;
                     else if(pos > maxpos) pos = maxpos;
+                    newPosition = pos;
                     v.SetPosTime(pos);
-                    timeShift = 0;
-                    currentPosition = null;
                     showProgress();
                 }, 8e2);
                 showProgress();
